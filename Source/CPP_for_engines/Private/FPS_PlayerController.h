@@ -27,6 +27,13 @@ protected:
 	TObjectPtr<UInputAction> _InteractAction;
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> _ReloadAction;
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> _SprintAction;
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> _CrouchAction;
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> _SpecialMovmentAction;
+	
 
 	virtual void SetupInputComponent() override;
 
@@ -40,6 +47,11 @@ protected:
 	void AimReleased();
 	void InteractPressed();
 	void ReloadPressed();
+	void SprintPressed();
+	void SprintReleased();
+	void CrouchPressed();
+	void CrouchReleased();
+	void SpecialMovmentPressed();
 
 	virtual void OnPossess(APawn* InPawn) override;
 };

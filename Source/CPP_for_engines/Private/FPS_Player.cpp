@@ -64,6 +64,39 @@ void AFPS_Player::Input_Reload_Implementation()
 	//TODO:: make reload
 }
 
+void AFPS_Player::Input_CrouchPressed_Implementation()
+{
+	ACharacter::Crouch();
+	_Camera->SetRelativeLocation({0.0f, 0.0f, CrouchedEyeHeight});
+}
+
+void AFPS_Player::Input_CrouchReleased_Implementation()
+{
+	ACharacter::UnCrouch();
+	_Camera->SetRelativeLocation({0.0f, 0.0f, BaseEyeHeight});
+}
+
+void AFPS_Player::Input_SprintPressed_Implementation()
+{
+	//TODO:: Start sprint
+}
+
+void AFPS_Player::Input_SprintReleased_Implementation()
+{
+	//TODO:: Stop sprint
+}
+
+void AFPS_Player::BeginPlay()
+{
+	_Camera->SetRelativeLocation({0.0f, 0.0f, BaseEyeHeight});
+	Super::BeginPlay();
+}
+
+void AFPS_Player::Input_SpacialMovmentPressed_Implementation()
+{
+	//TODO:: Make special movement abilities.
+}
+
 UInputMappingContext* AFPS_Player::GetMappingContext_Implementation()
 {
 	return _InputMapping;

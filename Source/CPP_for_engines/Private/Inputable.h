@@ -37,6 +37,16 @@ public:
 	void Input_AimReleased();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Input_Reload();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Input_SprintPressed();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Input_SprintReleased();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Input_CrouchPressed();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Input_CrouchReleased();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Input_SpacialMovmentPressed();
 
 	//TODO:: more movement
 

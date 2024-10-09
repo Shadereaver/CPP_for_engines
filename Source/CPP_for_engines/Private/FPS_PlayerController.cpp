@@ -13,10 +13,15 @@ void AFPS_PlayerController::SetupInputComponent()
 	{
 		EIP->BindAction(_LookAction, ETriggerEvent::Triggered, this, &AFPS_PlayerController::Look);
 		EIP->BindAction(_MoveAction, ETriggerEvent::Triggered, this, &AFPS_PlayerController::Move);
-		EIP->BindAction(_JumpAction, ETriggerEvent::Triggered, this, &AFPS_PlayerController::JumpPressed);
+		EIP->BindAction(_JumpAction, ETriggerEvent::Started, this, &AFPS_PlayerController::JumpPressed);
 		EIP->BindAction(_JumpAction, ETriggerEvent::Completed, this, &AFPS_PlayerController::JumpReleased);
 		EIP->BindAction(_AttackAction, ETriggerEvent::Started, this, &AFPS_PlayerController::AttackPressed);
 		EIP->BindAction(_AttackAction, ETriggerEvent::Completed, this, &AFPS_PlayerController::AttackReleased);
+		EIP->BindAction(_SprintAction, ETriggerEvent::Started, this, &AFPS_PlayerController::SprintPressed);
+		EIP->BindAction(_SprintAction, ETriggerEvent::Completed, this, &AFPS_PlayerController::SprintReleased);
+		EIP->BindAction(_CrouchAction, ETriggerEvent::Started, this, &AFPS_PlayerController::CrouchPressed);
+		EIP->BindAction(_CrouchAction, ETriggerEvent::Completed, this, &AFPS_PlayerController::CrouchReleased);
+		EIP->BindAction(_SpecialMovmentAction, ETriggerEvent::Triggered, this, &AFPS_PlayerController::SpecialMovmentPressed);
 	}
 }
 
@@ -130,6 +135,61 @@ void AFPS_PlayerController::ReloadPressed()
 		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
 		{
 			IInputable::Execute_Input_Reload(CurrentPawn);
+		}
+	}
+}
+
+void AFPS_PlayerController::SprintPressed()
+{
+	if (APawn* CurrentPawn = GetPawn())
+	{
+		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
+		{
+			IInputable::Execute_Input_SprintPressed(CurrentPawn);
+		}
+	}
+}
+
+void AFPS_PlayerController::SprintReleased()
+{
+	if (APawn* CurrentPawn = GetPawn())
+	{
+		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
+		{
+			IInputable::Execute_Input_SprintReleased(CurrentPawn);
+		}
+	}
+}
+
+void AFPS_PlayerController::CrouchPressed()
+{
+	if (APawn* CurrentPawn = GetPawn())
+	{
+		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
+		{
+			IInputable::Execute_Input_CrouchPressed(CurrentPawn);
+		}
+	}
+}
+
+void AFPS_PlayerController::CrouchReleased()
+{
+	if (APawn* CurrentPawn = GetPawn())
+	{
+		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
+		{
+			IInputable::Execute_Input_CrouchReleased(CurrentPawn);
+		}
+	}
+}
+
+void AFPS_PlayerController::SpecialMovmentPressed()
+{
+	if (APawn* CurrentPawn = GetPawn())
+	{
+		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
+		{
+			IInputable::Execute_Input_SpacialMovmentPressed(CurrentPawn);
 		}
 	}
 }

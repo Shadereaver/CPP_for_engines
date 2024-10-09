@@ -27,6 +27,12 @@ public:
 	virtual void Input_AimReleased_Implementation() override;
 	virtual void Input_Interact_Implementation() override;
 	virtual void Input_Reload_Implementation() override;
+	virtual void Input_CrouchPressed_Implementation() override;
+	virtual void Input_CrouchReleased_Implementation() override;
+	virtual void Input_SpacialMovmentPressed_Implementation() override;
+	virtual void Input_SprintPressed_Implementation() override;
+	virtual void Input_SprintReleased_Implementation() override;
+	virtual void BeginPlay() override;
 
 	virtual UInputMappingContext* GetMappingContext_Implementation() override;
 
