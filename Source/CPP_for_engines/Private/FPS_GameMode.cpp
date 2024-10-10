@@ -1,5 +1,6 @@
 ﻿#include "FPS_GameMode.h"
 
+#include "GameRule.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -35,6 +36,24 @@ void AFPS_GameMode::Logout(AController* Exiting)
 
 void AFPS_GameMode::HandleMatchIsWaitingToStart()
 {
+	TArray<UActorComponent*> OutComponents;
+
+	GetComponents(OutComponents);
+
+	for (UActorComponent* Comp : OutComponents)
+	{
+		if (UGameRule* Rule = Cast<UGameRule>(Comp))
+		{
+			_GameRuleManagers.Add(Rule);
+			Rule->Init();
+
+			Rule->OnComplete.AddUniqueDynamic(this, &AFPS_GameMode::Handle_GameRuleComplete);
+			Rule->OnPointsScored.AddUniqueDynamic(this, &AFPS_GameMode::Handle_GameRulePointsScored);
+
+			_GamRulesLeft++;
+		}
+	}
+	
 	GetWorld()->GetTimerManager().SetTimer(_TimerDecreaseCountdown, this, &AFPS_GameMode::DecreaseCountdown, 1.f, false);
 	Super::HandleMatchIsWaitingToStart();
 }
@@ -96,6 +115,14 @@ bool AFPS_GameMode::ReadyToStartMatch_Implementation()
 bool AFPS_GameMode::ReadyToEndMatch_Implementation()
 {
 	return false;
+}
+
+void AFPS_GameMode::Handle_GameRuleComplete()
+{
+}
+
+void AFPS_GameMode::Handle_GameRulePointsScored(AController* Scorer, int Points)
+{
 }
 
 void AFPS_GameMode::DecreaseCountdown()

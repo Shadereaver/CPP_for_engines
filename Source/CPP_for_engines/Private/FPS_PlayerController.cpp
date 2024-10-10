@@ -21,7 +21,7 @@ void AFPS_PlayerController::SetupInputComponent()
 		EIP->BindAction(_SprintAction, ETriggerEvent::Completed, this, &AFPS_PlayerController::SprintReleased);
 		EIP->BindAction(_CrouchAction, ETriggerEvent::Started, this, &AFPS_PlayerController::CrouchPressed);
 		EIP->BindAction(_CrouchAction, ETriggerEvent::Completed, this, &AFPS_PlayerController::CrouchReleased);
-		EIP->BindAction(_SpecialMovmentAction, ETriggerEvent::Triggered, this, &AFPS_PlayerController::SpecialMovmentPressed);
+		EIP->BindAction(_SpecialMovementAction, ETriggerEvent::Triggered, this, &AFPS_PlayerController::SpecialMovementPressed);
 	}
 }
 
@@ -183,13 +183,13 @@ void AFPS_PlayerController::CrouchReleased()
 	}
 }
 
-void AFPS_PlayerController::SpecialMovmentPressed()
+void AFPS_PlayerController::SpecialMovementPressed()
 {
 	if (APawn* CurrentPawn = GetPawn())
 	{
 		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
 		{
-			IInputable::Execute_Input_SpacialMovmentPressed(CurrentPawn);
+			IInputable::Execute_Input_SpacialMovementPressed(CurrentPawn);
 		}
 	}
 }

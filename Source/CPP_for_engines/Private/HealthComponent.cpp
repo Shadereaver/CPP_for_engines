@@ -23,6 +23,6 @@ void UHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const UDa
 {
 	const float change = FMath::Min(_CurrentHealth, Damage);
 	_CurrentHealth -= change;
-	UE_LOG(LogTemp, Display, TEXT("Damage for %f, %f health remaining"), change, _CurrentHealth);
-	if(FMath::IsNearlyZero(_CurrentHealth)) {UE_LOG(LogTemp, Display, TEXT("Dead"))}
+	OnDamaged.Broadcast(_CurrentHealth, _MaxHealth, change);
+	if(FMath::IsNearlyZero(_CurrentHealth)) {OnDead.Broadcast(InstigatedBy);}
 }

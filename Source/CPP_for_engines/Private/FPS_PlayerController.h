@@ -32,7 +32,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> _CrouchAction;
 	UPROPERTY(EditAnywhere, Category="Input")
-	TObjectPtr<UInputAction> _SpecialMovmentAction;
+	TObjectPtr<UInputAction> _SpecialMovementAction;
 	
 
 	virtual void SetupInputComponent() override;
@@ -51,7 +51,7 @@ protected:
 	void SprintReleased();
 	void CrouchPressed();
 	void CrouchReleased();
-	void SpecialMovmentPressed();
+	void SpecialMovementPressed();
 
 	virtual void OnPossess(APawn* InPawn) override;
 };

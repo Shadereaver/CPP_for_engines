@@ -4,6 +4,8 @@
 #include "GameFramework/GameMode.h"
 #include "FPS_GameMode.generated.h"
 
+class UGameRule;
+
 UCLASS(Abstract)
 class CPP_FOR_ENGINES_API AFPS_GameMode : public AGameMode
 {
@@ -25,6 +27,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Match management")
 	TSubclassOf<APawn> _MatchPawn;
 
+	int _GamRulesLeft;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TObjectPtr<UGameRule>> _GameRuleManagers;
+	
+	UFUNCTION()
+	void DecreaseCountdown();
+
 	virtual void HandleMatchIsWaitingToStart() override;
 	virtual void HandleMatchHasStarted() override;
 	virtual void HandleMatchHasEnded() override;
@@ -33,6 +42,9 @@ protected:
 	virtual bool ReadyToStartMatch_Implementation() override;
 	virtual bool ReadyToEndMatch_Implementation() override;
 
+private:
 	UFUNCTION()
-	void DecreaseCountdown();
+	void Handle_GameRuleComplete();
+	UFUNCTION()
+	void Handle_GameRulePointsScored(AController* Scorer, int Points);
 };

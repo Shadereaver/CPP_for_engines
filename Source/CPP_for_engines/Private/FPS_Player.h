@@ -29,7 +29,7 @@ public:
 	virtual void Input_Reload_Implementation() override;
 	virtual void Input_CrouchPressed_Implementation() override;
 	virtual void Input_CrouchReleased_Implementation() override;
-	virtual void Input_SpacialMovmentPressed_Implementation() override;
+	virtual void Input_SpacialMovementPressed_Implementation() override;
 	virtual void Input_SprintPressed_Implementation() override;
 	virtual void Input_SprintReleased_Implementation() override;
 	virtual void BeginPlay() override;
@@ -44,4 +44,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UInputMappingContext> _InputMapping;
+
+private:
+	UFUNCTION()
+	void Handle_HealthDead(AController* Causer);
+	UFUNCTION()
+	void Handle_HealthDamaged(float Current, float Max, float Change);
 };

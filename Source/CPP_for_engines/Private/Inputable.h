@@ -46,10 +46,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Input_CrouchReleased();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void Input_SpacialMovmentPressed();
-
-	//TODO:: more movement
-
+	void Input_SpacialMovementPressed();
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UInputMappingContext* GetMappingContext();

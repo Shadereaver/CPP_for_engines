@@ -88,11 +88,15 @@ void AFPS_Player::Input_SprintReleased_Implementation()
 
 void AFPS_Player::BeginPlay()
 {
-	_Camera->SetRelativeLocation({0.0f, 0.0f, BaseEyeHeight});
 	Super::BeginPlay();
+	
+	_Camera->SetRelativeLocation({0.0f, 0.0f, BaseEyeHeight});
+
+	_Health->OnDead.AddUniqueDynamic(this, &AFPS_Player::Handle_HealthDead);
+	_Health->OnDamaged.AddUniqueDynamic(this, &AFPS_Player::Handle_HealthDamaged);
 }
 
-void AFPS_Player::Input_SpacialMovmentPressed_Implementation()
+void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 {
 	//TODO:: Make special movement abilities.
 }
@@ -100,6 +104,16 @@ void AFPS_Player::Input_SpacialMovmentPressed_Implementation()
 UInputMappingContext* AFPS_Player::GetMappingContext_Implementation()
 {
 	return _InputMapping;
+}
+
+void AFPS_Player::Handle_HealthDead(AController* Causer)
+{
+	//TODO:: implement
+}
+
+void AFPS_Player::Handle_HealthDamaged(float Current, float Max, float Change)
+{
+	//TODO:: implement
 }
 
 
