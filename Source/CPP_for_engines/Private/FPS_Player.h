@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "FPS_Player.generated.h"
 
+class AWeaponBase;
 class UHealthComponent;
 class UCharacterMovementComponent;
 class UCameraComponent;
@@ -42,6 +43,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHealthComponent> _Health;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<USceneComponent> _WeaponAttachPoint;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AWeaponBase> _DefaultWeapon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<AWeaponBase> _WeaponRef;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UInputMappingContext> _InputMapping;
 

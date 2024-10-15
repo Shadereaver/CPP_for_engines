@@ -1,5 +1,6 @@
 ﻿#include "FPS_Player.h"
 #include "HealthComponent.h"
+#include "WeaponBase.h"
 #include "Camera/CameraComponent.h"
 
 
@@ -9,7 +10,9 @@ AFPS_Player::AFPS_Player()
 	_Camera->SetupAttachment(RootComponent);
 
 	_Health = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
-	
+
+	_WeaponAttachPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Weapon Attach"));
+	_WeaponAttachPoint->SetupAttachment(_Camera);
 }
 
 void AFPS_Player::Input_Look_Implementation(FVector2D Value)
@@ -26,12 +29,18 @@ void AFPS_Player::Input_Move_Implementation(FVector2D Value)
 
 void AFPS_Player::Input_AttackPressed_Implementation()
 {
-	//TODO: make weapon attack
+	if (_WeaponRef)
+	{
+		_WeaponRef->StartFire();
+	}
 }
 
 void AFPS_Player::Input_AttackReleased_Implementation()
 {
-	//TODO: make weapon stop
+	if (_WeaponRef)
+	{
+		_WeaponRef->StopFire();
+	}
 }
 
 void AFPS_Player::Input_JumpPressed_Implementation()
@@ -94,6 +103,15 @@ void AFPS_Player::BeginPlay()
 
 	_Health->OnDead.AddUniqueDynamic(this, &AFPS_Player::Handle_HealthDead);
 	_Health->OnDamaged.AddUniqueDynamic(this, &AFPS_Player::Handle_HealthDamaged);
+
+	if (_DefaultWeapon)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = this;
+		_WeaponRef = GetWorld()->SpawnActor<AWeaponBase>(_DefaultWeapon, _WeaponAttachPoint->GetComponentTransform(), SpawnParams);
+		_WeaponRef->AttachToComponent(_WeaponAttachPoint, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	}
 }
 
 void AFPS_Player::Input_SpacialMovementPressed_Implementation()
