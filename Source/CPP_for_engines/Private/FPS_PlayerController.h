@@ -1,14 +1,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Controllerable.h"
 #include "GameFramework/PlayerController.h"
 #include "FPS_PlayerController.generated.h"
 
+class UWidget_HUD;
 struct FInputActionValue;
 class UInputAction;
 
 UCLASS()
-class CPP_FOR_ENGINES_API AFPS_PlayerController : public APlayerController
+class CPP_FOR_ENGINES_API AFPS_PlayerController : public APlayerController, public IControllerable
 {
 	GENERATED_BODY()
 
@@ -33,9 +35,13 @@ protected:
 	TObjectPtr<UInputAction> _CrouchAction;
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> _SpecialMovementAction;
-	
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UWidget_HUD> _HUDWidgetClass;
+	TObjectPtr<UWidget_HUD> _HUDWidget;
 
 	virtual void SetupInputComponent() override;
+	virtual void BeginPlay() override;
 
 	void Look(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
@@ -54,4 +60,8 @@ protected:
 	void SpecialMovementPressed();
 
 	virtual void OnPossess(APawn* InPawn) override;
+
+private:
+	virtual void AddPoints_Implementation(int Points) override;
+	virtual void OnPawnDamaged_Implementation(float HealthRatio) override;
 };

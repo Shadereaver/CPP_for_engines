@@ -1,7 +1,10 @@
 ﻿#include "FPS_Player.h"
+
+#include "Controllerable.h"
 #include "HealthComponent.h"
 #include "WeaponBase.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AFPS_Player::AFPS_Player()
@@ -112,6 +115,8 @@ void AFPS_Player::BeginPlay()
 		_WeaponRef = GetWorld()->SpawnActor<AWeaponBase>(_DefaultWeapon, _WeaponAttachPoint->GetComponentTransform(), SpawnParams);
 		_WeaponRef->AttachToComponent(_WeaponAttachPoint, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
+
+	
 }
 
 void AFPS_Player::Input_SpacialMovementPressed_Implementation()
@@ -129,9 +134,12 @@ void AFPS_Player::Handle_HealthDead(AController* Causer)
 	//TODO:: implement
 }
 
-void AFPS_Player::Handle_HealthDamaged(float Current, float Max, float Change)
+void AFPS_Player::Handle_HealthDamaged(float Current, float Max)
 {
-	//TODO:: implement
+	if (UKismetSystemLibrary::DoesImplementInterface(GetController(), UControllerable::StaticClass()))
+	{
+		IControllerable::Execute_OnPawnDamaged(GetController(), Current/Max);
+	}
 }
 
 

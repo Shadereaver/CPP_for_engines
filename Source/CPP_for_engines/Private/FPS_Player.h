@@ -10,6 +10,7 @@ class UHealthComponent;
 class UCharacterMovementComponent;
 class UCameraComponent;
 
+
 UCLASS(Abstract)
 class CPP_FOR_ENGINES_API AFPS_Player : public ACharacter, public IInputable
 {
@@ -33,9 +34,11 @@ public:
 	virtual void Input_SpacialMovementPressed_Implementation() override;
 	virtual void Input_SprintPressed_Implementation() override;
 	virtual void Input_SprintReleased_Implementation() override;
+
 	virtual void BeginPlay() override;
 
 	virtual UInputMappingContext* GetMappingContext_Implementation() override;
+
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -57,5 +60,5 @@ private:
 	UFUNCTION()
 	void Handle_HealthDead(AController* Causer);
 	UFUNCTION()
-	void Handle_HealthDamaged(float Current, float Max, float Change);
+	void Handle_HealthDamaged(float Current, float Max);
 };

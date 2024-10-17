@@ -5,7 +5,7 @@
 #include "HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHealthDeadSignature, AController*, causer);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FHealthDamagedSignature, float, newHealth, float, maxHealth, float, change);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHealthDamagedSignature, float, newHealth, float, maxHealth);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class CPP_FOR_ENGINES_API UHealthComponent : public UActorComponent

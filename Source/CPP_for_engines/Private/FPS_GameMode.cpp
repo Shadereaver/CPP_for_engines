@@ -1,5 +1,6 @@
 ﻿#include "FPS_GameMode.h"
 
+#include "Controllerable.h"
 #include "GameRule.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
@@ -123,6 +124,10 @@ void AFPS_GameMode::Handle_GameRuleComplete()
 
 void AFPS_GameMode::Handle_GameRulePointsScored(AController* Scorer, int Points)
 {
+	if (UKismetSystemLibrary::DoesImplementInterface(Scorer, UControllerable::StaticClass()))
+	{
+		IControllerable::Execute_AddPoints(Scorer, Points);
+	}
 }
 
 void AFPS_GameMode::DecreaseCountdown()

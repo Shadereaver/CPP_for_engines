@@ -2,6 +2,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Inputable.h"
+#include "Widget_HUD.h"
+#include "Blueprint/UserWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -22,6 +24,18 @@ void AFPS_PlayerController::SetupInputComponent()
 		EIP->BindAction(_CrouchAction, ETriggerEvent::Started, this, &AFPS_PlayerController::CrouchPressed);
 		EIP->BindAction(_CrouchAction, ETriggerEvent::Completed, this, &AFPS_PlayerController::CrouchReleased);
 		EIP->BindAction(_SpecialMovementAction, ETriggerEvent::Triggered, this, &AFPS_PlayerController::SpecialMovementPressed);
+	}
+}
+
+void AFPS_PlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (_HUDWidgetClass)
+	{
+		_HUDWidget = CreateWidget<UWidget_HUD, AFPS_PlayerController*>(this, _HUDWidgetClass);
+		_HUDWidget->AddToViewport();
+		_HUDWidget->UpdateScore(0);
 	}
 }
 
@@ -206,3 +220,16 @@ void AFPS_PlayerController::OnPossess(APawn* InPawn)
 		}
 	}
 }
+
+void AFPS_PlayerController::AddPoints_Implementation(int Points)
+{
+	_HUDWidget->UpdateScore(Points);
+}
+
+void AFPS_PlayerController::OnPawnDamaged_Implementation(float HealthRatio)
+{
+	_HUDWidget->UpdateHealth(HealthRatio);
+}
+
+
+
