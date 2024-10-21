@@ -20,6 +20,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FHealthDamagedSignature OnDamaged;
 
+	
+	float Get_HealthRatio();
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _MaxHealth;

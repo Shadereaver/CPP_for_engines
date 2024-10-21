@@ -79,13 +79,11 @@ void AFPS_Player::Input_Reload_Implementation()
 void AFPS_Player::Input_CrouchPressed_Implementation()
 {
 	ACharacter::Crouch();
-	_Camera->SetRelativeLocation({0.0f, 0.0f, CrouchedEyeHeight});
 }
 
 void AFPS_Player::Input_CrouchReleased_Implementation()
 {
 	ACharacter::UnCrouch();
-	_Camera->SetRelativeLocation({0.0f, 0.0f, BaseEyeHeight});
 }
 
 void AFPS_Player::Input_SprintPressed_Implementation()
@@ -102,8 +100,6 @@ void AFPS_Player::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	_Camera->SetRelativeLocation({0.0f, 0.0f, BaseEyeHeight});
-
 	_Health->OnDead.AddUniqueDynamic(this, &AFPS_Player::Handle_HealthDead);
 	_Health->OnDamaged.AddUniqueDynamic(this, &AFPS_Player::Handle_HealthDamaged);
 
@@ -115,8 +111,6 @@ void AFPS_Player::BeginPlay()
 		_WeaponRef = GetWorld()->SpawnActor<AWeaponBase>(_DefaultWeapon, _WeaponAttachPoint->GetComponentTransform(), SpawnParams);
 		_WeaponRef->AttachToComponent(_WeaponAttachPoint, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
-
-	
 }
 
 void AFPS_Player::Input_SpacialMovementPressed_Implementation()
@@ -139,6 +133,14 @@ void AFPS_Player::Handle_HealthDamaged(float Current, float Max)
 	if (UKismetSystemLibrary::DoesImplementInterface(GetController(), UControllerable::StaticClass()))
 	{
 		IControllerable::Execute_OnPawnDamaged(GetController(), Current/Max);
+	}
+}
+
+void AFPS_Player::PossessedBy(AController* NewController)
+{
+	if (UKismetSystemLibrary::DoesImplementInterface(NewController, UControllerable::StaticClass()))
+	{
+		IControllerable::Execute_OnPawnDamaged(NewController, _Health->Get_HealthRatio());
 	}
 }
 

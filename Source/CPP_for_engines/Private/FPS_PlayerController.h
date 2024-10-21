@@ -9,7 +9,7 @@ class UWidget_HUD;
 struct FInputActionValue;
 class UInputAction;
 
-UCLASS()
+UCLASS(Abstract)
 class CPP_FOR_ENGINES_API AFPS_PlayerController : public APlayerController, public IControllerable
 {
 	GENERATED_BODY()
