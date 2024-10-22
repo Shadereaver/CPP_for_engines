@@ -63,5 +63,4 @@ protected:
 
 private:
 	virtual void AddPoints_Implementation(int Points) override;
-	virtual void OnPawnDamaged_Implementation(float HealthRatio) override;
 };

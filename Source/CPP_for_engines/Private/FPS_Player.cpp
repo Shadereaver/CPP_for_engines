@@ -128,21 +128,12 @@ void AFPS_Player::Handle_HealthDead(AController* Causer)
 	//TODO:: implement
 }
 
-void AFPS_Player::Handle_HealthDamaged(float Current, float Max)
+void AFPS_Player::Handle_HealthDamaged(float Ratio)
 {
-	if (UKismetSystemLibrary::DoesImplementInterface(GetController(), UControllerable::StaticClass()))
-	{
-		IControllerable::Execute_OnPawnDamaged(GetController(), Current/Max);
-	}
+	
 }
 
-void AFPS_Player::PossessedBy(AController* NewController)
-{
-	if (UKismetSystemLibrary::DoesImplementInterface(NewController, UControllerable::StaticClass()))
-	{
-		IControllerable::Execute_OnPawnDamaged(NewController, _Health->Get_HealthRatio());
-	}
-}
+
 
 
 

@@ -1,6 +1,7 @@
 #include "FPS_PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "HealthComponent.h"
 #include "Inputable.h"
 #include "Widget_HUD.h"
 #include "Blueprint/UserWidget.h"
@@ -210,6 +211,11 @@ void AFPS_PlayerController::SpecialMovementPressed()
 
 void AFPS_PlayerController::OnPossess(APawn* InPawn)
 {
+	if (UHealthComponent* health = CastChecked<UHealthComponent>(GetPawn()->GetComponentByClass(UHealthComponent::StaticClass())))
+	{
+		health->OnDamaged.RemoveDynamic(_HUDWidget, &UWidget_HUD::UpdateHealth);
+	}
+	
 	Super::OnPossess(InPawn);
 
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
@@ -219,17 +225,15 @@ void AFPS_PlayerController::OnPossess(APawn* InPawn)
 			Subsystem->AddMappingContext(IInputable::Execute_GetMappingContext(InPawn), 0);
 		}
 	}
+
+	if (UHealthComponent* health = CastChecked<UHealthComponent>(InPawn->GetComponentByClass(UHealthComponent::StaticClass())))
+	{
+		health->OnDamaged.AddUniqueDynamic(_HUDWidget, &UWidget_HUD::UpdateHealth);
+		_HUDWidget->UpdateHealth(health->Get_HealthRatio());
+	}
 }
 
 void AFPS_PlayerController::AddPoints_Implementation(int Points)
 {
 	_HUDWidget->UpdateScore(Points);
 }
-
-void AFPS_PlayerController::OnPawnDamaged_Implementation(float HealthRatio)
-{
-	_HUDWidget->UpdateHealth(HealthRatio);
-}
-
-
-

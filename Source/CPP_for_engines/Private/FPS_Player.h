@@ -60,7 +60,5 @@ private:
 	UFUNCTION()
 	void Handle_HealthDead(AController* Causer);
 	UFUNCTION()
-	void Handle_HealthDamaged(float Current, float Max);
-	
-	virtual void PossessedBy(AController* NewController) override;
+	void Handle_HealthDamaged(float Ratio);
 };

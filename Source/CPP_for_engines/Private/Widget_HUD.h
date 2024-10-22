@@ -16,6 +16,7 @@ class CPP_FOR_ENGINES_API UWidget_HUD : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
+	UFUNCTION()
 	void UpdateHealth(float NewHealthRatio);
 	void UpdateScore(int NewScore);
 

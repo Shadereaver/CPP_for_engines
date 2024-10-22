@@ -18,6 +18,4 @@ class CPP_FOR_ENGINES_API IControllerable
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void AddPoints(int Points);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void OnPawnDamaged(float HealthRatio);
 };
