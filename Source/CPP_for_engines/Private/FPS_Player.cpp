@@ -1,10 +1,9 @@
 ﻿#include "FPS_Player.h"
 
-#include "Controllerable.h"
 #include "HealthComponent.h"
 #include "WeaponBase.h"
 #include "Camera/CameraComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 AFPS_Player::AFPS_Player()
@@ -16,6 +15,8 @@ AFPS_Player::AFPS_Player()
 
 	_WeaponAttachPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Weapon Attach"));
 	_WeaponAttachPoint->SetupAttachment(_Camera);
+
+	bIsSprinting = false;
 }
 
 void AFPS_Player::Input_Look_Implementation(FVector2D Value)
@@ -26,8 +27,8 @@ void AFPS_Player::Input_Look_Implementation(FVector2D Value)
 
 void AFPS_Player::Input_Move_Implementation(FVector2D Value)
 {
-	AddMovementInput(FVector::VectorPlaneProject(_Camera->GetForwardVector(), FVector::UpVector).GetSafeNormal(), Value.Y);
-	AddMovementInput(_Camera->GetRightVector(), Value.X);
+	AddMovementInput(FVector::VectorPlaneProject(_Camera->GetForwardVector(), FVector::UpVector).GetSafeNormal(), (bIsSprinting) ? Value.Y : Value.Y / 0.5);
+	AddMovementInput(_Camera->GetRightVector(), Value.X / 0.5);
 }
 
 void AFPS_Player::Input_AttackPressed_Implementation()
@@ -88,12 +89,12 @@ void AFPS_Player::Input_CrouchReleased_Implementation()
 
 void AFPS_Player::Input_SprintPressed_Implementation()
 {
-	//TODO:: Start sprint
+	bIsSprinting = true;
 }
 
 void AFPS_Player::Input_SprintReleased_Implementation()
 {
-	//TODO:: Stop sprint
+	bIsSprinting = false;
 }
 
 void AFPS_Player::BeginPlay()
@@ -121,6 +122,11 @@ void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 UInputMappingContext* AFPS_Player::GetMappingContext_Implementation()
 {
 	return _InputMapping;
+}
+
+UBehaviorTree* AFPS_Player::GetBehaviorTree_Implementation()
+{
+	return _BeaviorTree;
 }
 
 void AFPS_Player::Handle_HealthDead(AController* Causer)

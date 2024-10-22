@@ -24,6 +24,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _Damage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float _Mass;
 
 	UFUNCTION()
 	void Handle_Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

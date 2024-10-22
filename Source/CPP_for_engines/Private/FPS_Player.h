@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "FPS_Player.generated.h"
 
+class UBehaviorTree;
 class AWeaponBase;
 class UHealthComponent;
 class UCharacterMovementComponent;
@@ -38,6 +39,7 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual UInputMappingContext* GetMappingContext_Implementation() override;
+	virtual UBehaviorTree* GetBehaviorTree_Implementation() override;
 
 
 protected:
@@ -45,6 +47,9 @@ protected:
 	TObjectPtr<UCameraComponent> _Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHealthComponent> _Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsSprinting;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> _WeaponAttachPoint;
@@ -55,6 +60,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UInputMappingContext> _InputMapping;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UBehaviorTree> _BeaviorTree;
 
 private:
 	UFUNCTION()
