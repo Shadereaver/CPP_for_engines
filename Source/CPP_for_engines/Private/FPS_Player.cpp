@@ -4,31 +4,33 @@
 #include "WeaponBase.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AFPS_Player::AFPS_Player()
 {
 	_Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	_Camera->SetupAttachment(RootComponent);
-
+	
 	_Health = CreateDefaultSubobject<UHealthComponent>(TEXT("Health"));
 
 	_WeaponAttachPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Weapon Attach"));
 	_WeaponAttachPoint->SetupAttachment(_Camera);
 
-	bIsSprinting = false;
+	_bIsSprinting = false;
+	_WalkSpeedRatio = 0.5;
 }
 
 void AFPS_Player::Input_Look_Implementation(FVector2D Value)
 {
-	AddActorWorldRotation(FRotator(0.0f, Value.X, 0.0f));
-	_Camera->AddLocalRotation(FRotator(Value.Y, 0.0f, 0.0f));
+	AddControllerPitchInput(-Value.Y);
+	AddControllerYawInput(Value.X);
 }
 
 void AFPS_Player::Input_Move_Implementation(FVector2D Value)
 {
-	AddMovementInput(FVector::VectorPlaneProject(_Camera->GetForwardVector(), FVector::UpVector).GetSafeNormal(), (bIsSprinting) ? Value.Y : Value.Y / 0.5);
-	AddMovementInput(_Camera->GetRightVector(), Value.X / 0.5);
+	AddMovementInput(FVector::VectorPlaneProject(_Camera->GetForwardVector(), FVector::UpVector).GetSafeNormal(), (_bIsSprinting) ? Value.Y : Value.Y * _WalkSpeedRatio);
+	AddMovementInput(_Camera->GetRightVector(), Value.X * _WalkSpeedRatio);
 }
 
 void AFPS_Player::Input_AttackPressed_Implementation()
@@ -89,12 +91,12 @@ void AFPS_Player::Input_CrouchReleased_Implementation()
 
 void AFPS_Player::Input_SprintPressed_Implementation()
 {
-	bIsSprinting = true;
+	_bIsSprinting = true;
 }
 
 void AFPS_Player::Input_SprintReleased_Implementation()
 {
-	bIsSprinting = false;
+	_bIsSprinting = false;
 }
 
 void AFPS_Player::BeginPlay()
@@ -116,7 +118,7 @@ void AFPS_Player::BeginPlay()
 
 void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 {
-	//TODO:: Make special movement abilities.
+	UKismetSystemLibrary::LineTraceSingle()
 }
 
 UInputMappingContext* AFPS_Player::GetMappingContext_Implementation()
@@ -136,10 +138,5 @@ void AFPS_Player::Handle_HealthDead(AController* Causer)
 
 void AFPS_Player::Handle_HealthDamaged(float Ratio)
 {
-	
+	//TODO:: use interface for binding
 }
-
-
-
-
-

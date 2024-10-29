@@ -48,8 +48,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UHealthComponent> _Health;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool _bIsSprinting;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bIsSprinting;
+	float _WalkSpeedRatio;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> _WeaponAttachPoint;

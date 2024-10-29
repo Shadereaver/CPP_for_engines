@@ -9,7 +9,7 @@ UQuestSystem::UQuestSystem()
 
 	_ActiveQuestIndex = 0;
 
-	FStreamableManager::RequestAsyncLoad(_Quests[_ActiveQuestIndex].);
+//	FStreamableManager::RequestAsyncLoad(_Quests[_ActiveQuestIndex].);
 }
 
 

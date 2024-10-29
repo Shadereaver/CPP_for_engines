@@ -15,7 +15,7 @@ class CPP_FOR_ENGINES_API UQuestSystem : public UActorComponent
 public:
 	UQuestSystem();
 
-private:
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TObjectPtr<UQuest>> _Quests;
 
@@ -25,5 +25,5 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool _IsCompleted;
 	
-	TObjectPtr<FStreamableHandle> StreamableHandle;
+//	TObjectPtr<FStreamableHandle> StreamableHandle;
 };

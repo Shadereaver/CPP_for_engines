@@ -5,6 +5,7 @@
 #include "Inputable.h"
 #include "Widget_HUD.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -231,6 +232,9 @@ void AFPS_PlayerController::OnPossess(APawn* InPawn)
 		health->OnDamaged.AddUniqueDynamic(_HUDWidget, &UWidget_HUD::UpdateHealth);
 		_HUDWidget->UpdateHealth(health->Get_HealthRatio());
 	}
+
+	UGameplayStatics::GetPlayerCameraManager(this, 0)->ViewPitchMax = 90;
+	UGameplayStatics::GetPlayerCameraManager(this, 0)->ViewPitchMin = -90;
 }
 
 void AFPS_PlayerController::AddPoints_Implementation(int Points)
