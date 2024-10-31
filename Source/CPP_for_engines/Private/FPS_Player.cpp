@@ -3,6 +3,7 @@
 #include "HealthComponent.h"
 #include "WeaponBase.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 AFPS_Player::AFPS_Player()
@@ -17,6 +18,8 @@ AFPS_Player::AFPS_Player()
 
 	_bIsSprinting = false;
 	_WalkSpeedRatio = 0.5;
+
+	_bIsMovingSpecial = false;
 }
 
 void AFPS_Player::Input_Look_Implementation(FVector2D Value)
@@ -116,7 +119,90 @@ void AFPS_Player::BeginPlay()
 
 void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 {
+	if (_bIsMovingSpecial) {return;}
+	_bIsMovingSpecial = true;
+
+	FHitResult WallRightHitResult;
+	FHitResult WallLeftHitResult;
+	FHitResult RoofHitResult;
+	FHitResult UpperFrontWallHitResult;
+	FHitResult LowerFrontWallHitResult;
 	
+	UKismetSystemLibrary::LineTraceSingle(this,
+		GetActorLocation(),
+		GetActorLocation() + GetActorRightVector() * 100,
+		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+		false,
+		{},
+		EDrawDebugTrace::ForDuration,
+		WallRightHitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5);
+
+	UKismetSystemLibrary::LineTraceSingle(this,
+		GetActorLocation(),
+		GetActorLocation() + -GetActorRightVector() * 100,
+		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+		false,
+		{},
+		EDrawDebugTrace::ForDuration,
+		WallLeftHitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5);
+
+	UKismetSystemLibrary::LineTraceSingle(this,
+		GetActorLocation(),
+		GetActorLocation() + GetActorUpVector() * 200,
+		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+		false,
+		{},
+		EDrawDebugTrace::ForDuration,
+		RoofHitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5);
+
+	UKismetSystemLibrary::LineTraceSingle(this,
+		GetActorLocation() + GetActorUpVector() * 100,
+		(GetActorLocation() + GetActorUpVector() * 100) + GetActorForwardVector() * 100,
+		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+		false,
+		{},
+		EDrawDebugTrace::ForDuration,
+		UpperFrontWallHitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5);
+
+	UKismetSystemLibrary::LineTraceSingle(this,
+		GetActorLocation() - GetActorUpVector() * 50,
+		(GetActorLocation() - GetActorUpVector() * 50) + GetActorForwardVector() * 100,
+		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+		false,
+		{},
+		EDrawDebugTrace::ForDuration,
+		LowerFrontWallHitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5);
+
+	if (!RoofHitResult.bBlockingHit && !UpperFrontWallHitResult.bBlockingHit && LowerFrontWallHitResult.bBlockingHit)
+	{
+		AddActorLocalOffset(GetActorUpVector() * 200);
+	}
+	else if (_bIsSprinting && (WallLeftHitResult.bBlockingHit || WallRightHitResult.bBlockingHit))
+	{
+		UE_LOG(LogTemp, Display, TEXT("Dot: %f"), GetActorForwardVector().Dot(GetVelocity()));
+	}
+
+	_bIsMovingSpecial = false;
 }
 
 UInputMappingContext* AFPS_Player::GetMappingContext_Implementation()

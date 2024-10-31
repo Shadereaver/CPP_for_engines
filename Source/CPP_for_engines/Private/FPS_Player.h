@@ -63,6 +63,9 @@ protected:
 	float _WalkSpeedRatio;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool _bIsMovingSpecial;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USceneComponent> _WeaponAttachPoint;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AWeaponBase> _DefaultWeapon;
