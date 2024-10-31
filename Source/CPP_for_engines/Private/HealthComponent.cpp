@@ -11,7 +11,7 @@ UHealthComponent::UHealthComponent()
 
 float UHealthComponent::Get_HealthRatio()
 {
-	return _CurrentHealth/_MaxHealth;
+	return _CurrentHealth / _MaxHealth;
 }
 
 void UHealthComponent::BeginPlay()

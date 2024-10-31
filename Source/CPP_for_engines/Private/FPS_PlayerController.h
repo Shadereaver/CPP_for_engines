@@ -63,4 +63,7 @@ protected:
 
 private:
 	virtual void AddPoints_Implementation(int Points) override;
+
+	UFUNCTION()
+	void Handle_OnDamage(float Ratio);
 };

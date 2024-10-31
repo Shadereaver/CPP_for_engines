@@ -1,8 +1,8 @@
 #include "FPS_PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "HealthComponent.h"
 #include "Inputable.h"
+#include "PawnOnDamageEvent.h"
 #include "Widget_HUD.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -212,9 +212,9 @@ void AFPS_PlayerController::SpecialMovementPressed()
 
 void AFPS_PlayerController::OnPossess(APawn* InPawn)
 {
-	if (UHealthComponent* health = CastChecked<UHealthComponent>(GetPawn()->GetComponentByClass(UHealthComponent::StaticClass())))
+	if (UKismetSystemLibrary::DoesImplementInterface(GetPawn(), UPawnOnDamageEvent::StaticClass()))
 	{
-		health->OnDamaged.RemoveDynamic(_HUDWidget, &UWidget_HUD::UpdateHealth);
+		Cast<IPawnOnDamageEvent>(GetPawn())->GetDamageDelegate().RemoveDynamic(this, &AFPS_PlayerController::Handle_OnDamage);
 	}
 	
 	Super::OnPossess(InPawn);
@@ -227,10 +227,11 @@ void AFPS_PlayerController::OnPossess(APawn* InPawn)
 		}
 	}
 
-	if (UHealthComponent* health = CastChecked<UHealthComponent>(InPawn->GetComponentByClass(UHealthComponent::StaticClass())))
+	if (UKismetSystemLibrary::DoesImplementInterface(InPawn, UPawnOnDamageEvent::StaticClass()))
 	{
-		health->OnDamaged.AddUniqueDynamic(_HUDWidget, &UWidget_HUD::UpdateHealth);
-		_HUDWidget->UpdateHealth(health->Get_HealthRatio());
+		IPawnOnDamageEvent* IInPawn = Cast<IPawnOnDamageEvent>(InPawn);
+		IInPawn->GetDamageDelegate().AddUniqueDynamic(this, &AFPS_PlayerController::Handle_OnDamage);
+		IInPawn->RequestHealthUpdate();
 	}
 
 	UGameplayStatics::GetPlayerCameraManager(this, 0)->ViewPitchMax = 90;
@@ -241,3 +242,11 @@ void AFPS_PlayerController::AddPoints_Implementation(int Points)
 {
 	_HUDWidget->UpdateScore(Points);
 }
+
+void AFPS_PlayerController::Handle_OnDamage(float Ratio)
+{
+	_HUDWidget->UpdateHealth(Ratio);
+}
+
+
+

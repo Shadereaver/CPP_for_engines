@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Inputable.h"
+#include "PawnOnDamageEvent.h"
 #include "GameFramework/Character.h"
 #include "FPS_Player.generated.h"
 
@@ -12,13 +13,21 @@ class UCharacterMovementComponent;
 class UCameraComponent;
 
 
+
 UCLASS(Abstract)
-class CPP_FOR_ENGINES_API AFPS_Player : public ACharacter, public IInputable
+class CPP_FOR_ENGINES_API AFPS_Player : public ACharacter, public IInputable, public IPawnOnDamageEvent
 {
 	GENERATED_BODY()
 
 public:
 	AFPS_Player();
+
+	FPawnDamagedSignature OnDamaged;
+	FPawnDeathSignature OnDeath;
+
+	virtual FPawnDamagedSignature& GetDamageDelegate() override;
+	virtual FPawnDeathSignature& GetDeathDelegate() override;
+	virtual void RequestHealthUpdate() override;
 
 	virtual void Input_Look_Implementation(FVector2D Value) override;
 	virtual void Input_Move_Implementation(FVector2D Value) override;

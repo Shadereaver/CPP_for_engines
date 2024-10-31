@@ -3,8 +3,6 @@
 #include "HealthComponent.h"
 #include "WeaponBase.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 
 AFPS_Player::AFPS_Player()
@@ -118,7 +116,7 @@ void AFPS_Player::BeginPlay()
 
 void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 {
-	UKismetSystemLibrary::LineTraceSingle()
+	
 }
 
 UInputMappingContext* AFPS_Player::GetMappingContext_Implementation()
@@ -138,5 +136,20 @@ void AFPS_Player::Handle_HealthDead(AController* Causer)
 
 void AFPS_Player::Handle_HealthDamaged(float Ratio)
 {
-	//TODO:: use interface for binding
+	OnDamaged.Broadcast(Ratio);
+}
+
+FPawnDamagedSignature& AFPS_Player::GetDamageDelegate()
+{
+	return OnDamaged;
+}
+
+FPawnDeathSignature& AFPS_Player::GetDeathDelegate()
+{
+	return OnDeath;
+}
+
+void AFPS_Player::RequestHealthUpdate()
+{
+	OnDamaged.Broadcast(_Health->Get_HealthRatio());
 }
