@@ -52,6 +52,7 @@ public:
 
 
 protected:
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UCameraComponent> _Camera;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -62,6 +63,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _WalkSpeedRatio;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool _bIsWallRunning;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool _bIsMovingSpecial;
 
@@ -79,8 +82,15 @@ protected:
 	TObjectPtr<UBehaviorTree> _BeaviorTree;
 
 private:
+	FTimerHandle _TimerWallRunUpdate;
+
+	bool _bIsRightWallRun;
+	
 	UFUNCTION()
 	void Handle_HealthDead(AController* Causer);
 	UFUNCTION()
 	void Handle_HealthDamaged(float Ratio);
+
+	UFUNCTION()
+	void WallRun();
 };

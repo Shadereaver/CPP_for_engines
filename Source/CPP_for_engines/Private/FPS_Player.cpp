@@ -3,6 +3,7 @@
 #include "HealthComponent.h"
 #include "WeaponBase.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -53,6 +54,12 @@ void AFPS_Player::Input_AttackReleased_Implementation()
 void AFPS_Player::Input_JumpPressed_Implementation()
 {
 	ACharacter::Jump();
+
+	if (_bIsWallRunning)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Jump"));
+		GetCharacterMovement()->AddImpulse((_Camera->GetForwardVector() + _Camera->GetRightVector()) * 500, true);
+	}
 }
 
 void AFPS_Player::Input_JumpReleased_Implementation()
@@ -122,37 +129,10 @@ void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 	if (_bIsMovingSpecial) {return;}
 	_bIsMovingSpecial = true;
 
-	FHitResult WallRightHitResult;
-	FHitResult WallLeftHitResult;
+
 	FHitResult RoofHitResult;
 	FHitResult UpperFrontWallHitResult;
 	FHitResult LowerFrontWallHitResult;
-	
-	UKismetSystemLibrary::LineTraceSingle(this,
-		GetActorLocation(),
-		GetActorLocation() + GetActorRightVector() * 100,
-		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
-		false,
-		{},
-		EDrawDebugTrace::ForDuration,
-		WallRightHitResult,
-		true,
-		FLinearColor::Red,
-		FLinearColor::Green,
-		5);
-
-	UKismetSystemLibrary::LineTraceSingle(this,
-		GetActorLocation(),
-		GetActorLocation() + -GetActorRightVector() * 100,
-		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
-		false,
-		{},
-		EDrawDebugTrace::ForDuration,
-		WallLeftHitResult,
-		true,
-		FLinearColor::Red,
-		FLinearColor::Green,
-		5);
 
 	UKismetSystemLibrary::LineTraceSingle(this,
 		GetActorLocation(),
@@ -196,13 +176,12 @@ void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 	if (!RoofHitResult.bBlockingHit && !UpperFrontWallHitResult.bBlockingHit && LowerFrontWallHitResult.bBlockingHit)
 	{
 		AddActorLocalOffset(GetActorUpVector() * 200);
+		_bIsMovingSpecial = false;
 	}
-	else if (_bIsSprinting && (WallLeftHitResult.bBlockingHit || WallRightHitResult.bBlockingHit))
+	else
 	{
-		UE_LOG(LogTemp, Display, TEXT("Dot: %f"), GetActorForwardVector().Dot(GetVelocity()));
+		WallRun();
 	}
-
-	_bIsMovingSpecial = false;
 }
 
 UInputMappingContext* AFPS_Player::GetMappingContext_Implementation()
@@ -223,6 +202,88 @@ void AFPS_Player::Handle_HealthDead(AController* Causer)
 void AFPS_Player::Handle_HealthDamaged(float Ratio)
 {
 	OnDamaged.Broadcast(Ratio);
+}
+
+void AFPS_Player::WallRun()
+{
+	FHitResult WallRightHitResult;
+	FHitResult WallRightBackHitResult;
+	FHitResult WallLeftHitResult;
+	FHitResult WallLeftBackHitResult;
+	
+	UKismetSystemLibrary::LineTraceSingle(this,
+		GetActorLocation(),
+		GetActorLocation() + GetActorRightVector() * 100,
+		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+		false,
+		{},
+		EDrawDebugTrace::ForDuration,
+		WallRightHitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5);
+
+	UKismetSystemLibrary::LineTraceSingle(this,
+		GetActorLocation(),
+		GetActorLocation()  + (GetActorRightVector() + FVector(1,0,0)) * 100,
+		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+		false,
+		{},
+		EDrawDebugTrace::ForDuration,
+		WallRightBackHitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5);
+
+	UKismetSystemLibrary::LineTraceSingle(this,
+		GetActorLocation(),
+		GetActorLocation() + -GetActorRightVector() * 100,
+		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+		false,
+		{},
+		EDrawDebugTrace::ForDuration,
+		WallLeftHitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5);
+
+	UKismetSystemLibrary::LineTraceSingle(this,
+		GetActorLocation(),
+		GetActorLocation() + (-GetActorRightVector() + FVector(1,0,0)) * 100,
+		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
+		false,
+		{},
+		EDrawDebugTrace::ForDuration,
+		WallLeftBackHitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		5);
+
+	if (_bIsSprinting && (WallLeftHitResult.bBlockingHit || WallRightHitResult.bBlockingHit
+		|| WallLeftBackHitResult.bBlockingHit || WallRightBackHitResult.bBlockingHit)
+		&& GetActorForwardVector().Dot(GetVelocity()) > GetCharacterMovement()->MaxWalkSpeed * 0.5)
+	{
+		GetCharacterMovement()->GravityScale = 0.5f;
+
+		GetWorld()->GetTimerManager().SetTimer(_TimerWallRunUpdate, this, &AFPS_Player::WallRun, 0.01f, true);
+
+		_bIsWallRunning = true;
+
+		_bIsRightWallRun = (WallRightHitResult.bBlockingHit || WallRightBackHitResult.bBlockingHit) ? true : false;
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(_TimerWallRunUpdate);
+		
+		GetCharacterMovement()->GravityScale = 1;
+		
+		_bIsWallRunning = false;
+		_bIsMovingSpecial = false;
+	}
 }
 
 FPawnDamagedSignature& AFPS_Player::GetDamageDelegate()
