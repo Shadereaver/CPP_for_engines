@@ -57,8 +57,14 @@ void AFPS_Player::Input_JumpPressed_Implementation()
 
 	if (_bIsWallRunning)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Jump"));
-		GetCharacterMovement()->AddImpulse((_Camera->GetForwardVector() + _Camera->GetRightVector()) * 500, true);
+		if (_bIsRightWallRun)
+		{
+			GetCharacterMovement()->AddImpulse((_Camera->GetForwardVector() + -_Camera->GetRightVector()) * 750, true);
+		}
+		else
+		{
+			GetCharacterMovement()->AddImpulse((_Camera->GetForwardVector() + _Camera->GetRightVector()) * 750, true);
+		}
 	}
 }
 
@@ -140,7 +146,7 @@ void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
 		false,
 		{},
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		RoofHitResult,
 		true,
 		FLinearColor::Red,
@@ -153,7 +159,7 @@ void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
 		false,
 		{},
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		UpperFrontWallHitResult,
 		true,
 		FLinearColor::Red,
@@ -166,7 +172,7 @@ void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
 		false,
 		{},
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		LowerFrontWallHitResult,
 		true,
 		FLinearColor::Red,
@@ -175,7 +181,7 @@ void AFPS_Player::Input_SpacialMovementPressed_Implementation()
 
 	if (!RoofHitResult.bBlockingHit && !UpperFrontWallHitResult.bBlockingHit && LowerFrontWallHitResult.bBlockingHit)
 	{
-		AddActorLocalOffset(GetActorUpVector() * 200);
+		GetCharacterMovement()->AddImpulse(GetActorUpVector() * 600, true);
 		_bIsMovingSpecial = false;
 	}
 	else
@@ -191,7 +197,7 @@ UInputMappingContext* AFPS_Player::GetMappingContext_Implementation()
 
 UBehaviorTree* AFPS_Player::GetBehaviorTree_Implementation()
 {
-	return _BeaviorTree;
+	return _BehaviorTree;
 }
 
 void AFPS_Player::Handle_HealthDead(AController* Causer)
@@ -202,6 +208,16 @@ void AFPS_Player::Handle_HealthDead(AController* Causer)
 void AFPS_Player::Handle_HealthDamaged(float Ratio)
 {
 	OnDamaged.Broadcast(Ratio);
+}
+
+void AFPS_Player::Landed(const FHitResult& Hit)
+{
+	GetWorld()->GetTimerManager().ClearTimer(_TimerWallRunUpdate);
+
+	GetCharacterMovement()->GravityScale = 1;
+		
+	_bIsWallRunning = false;
+	_bIsMovingSpecial = false;
 }
 
 void AFPS_Player::WallRun()
@@ -217,7 +233,7 @@ void AFPS_Player::WallRun()
 		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
 		false,
 		{},
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		WallRightHitResult,
 		true,
 		FLinearColor::Red,
@@ -230,7 +246,7 @@ void AFPS_Player::WallRun()
 		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
 		false,
 		{},
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		WallRightBackHitResult,
 		true,
 		FLinearColor::Red,
@@ -243,7 +259,7 @@ void AFPS_Player::WallRun()
 		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
 		false,
 		{},
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		WallLeftHitResult,
 		true,
 		FLinearColor::Red,
@@ -256,7 +272,7 @@ void AFPS_Player::WallRun()
 		UEngineTypes::ConvertToTraceType(ECC_WorldStatic),
 		false,
 		{},
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		WallLeftBackHitResult,
 		true,
 		FLinearColor::Red,
@@ -277,7 +293,7 @@ void AFPS_Player::WallRun()
 	}
 	else
 	{
-		GetWorld()->GetTimerManager().ClearTimer(_TimerWallRunUpdate);
+		
 		
 		GetCharacterMovement()->GravityScale = 1;
 		

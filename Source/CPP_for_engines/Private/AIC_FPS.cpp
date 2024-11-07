@@ -1,6 +1,7 @@
 ﻿#include "AIC_FPS.h"
 
 #include "Inputable.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -23,4 +24,6 @@ void AAIC_FPS::OnPossess(APawn* InPawn)
 	{
 		RunBehaviorTree(IInputable::Execute_GetBehaviorTree(InPawn));
 	}
+
+	
 }

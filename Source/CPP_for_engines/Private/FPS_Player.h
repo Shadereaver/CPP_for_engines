@@ -79,7 +79,7 @@ protected:
 	TObjectPtr<UInputMappingContext> _InputMapping;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UBehaviorTree> _BeaviorTree;
+	TObjectPtr<UBehaviorTree> _BehaviorTree;
 
 private:
 	FTimerHandle _TimerWallRunUpdate;
@@ -90,6 +90,9 @@ private:
 	void Handle_HealthDead(AController* Causer);
 	UFUNCTION()
 	void Handle_HealthDamaged(float Ratio);
+
+	UFUNCTION()
+	virtual void Landed(const FHitResult& Hit) override;
 
 	UFUNCTION()
 	void WallRun();
