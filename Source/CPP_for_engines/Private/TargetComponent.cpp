@@ -39,7 +39,6 @@ void UTargetComponent::BeginPlay()
 void UTargetComponent::Handle_HealthDead(AController* Causer)
 {
 	OnDestroyed.Broadcast(this, Causer, _PointsValue);
-	GetOwner()->Destroy();
 }
 
 void UTargetComponent::Handle_GameRuleRequestTargets()

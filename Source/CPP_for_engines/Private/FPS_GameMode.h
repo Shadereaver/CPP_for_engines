@@ -27,7 +27,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Match management")
 	TSubclassOf<APawn> _MatchPawn;
 
-	int _GamRulesLeft;
+	int _GameRulesLeft;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TObjectPtr<UGameRule>> _GameRuleManagers;
 	
@@ -47,4 +47,7 @@ private:
 	void Handle_GameRuleComplete();
 	UFUNCTION()
 	void Handle_GameRulePointsScored(AController* Scorer, int Points);
+
+	UFUNCTION()
+	void Handle_playerDeath(AController* Causer);
 };

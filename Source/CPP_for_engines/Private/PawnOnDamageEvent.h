@@ -5,7 +5,7 @@
 #include "PawnOnDamageEvent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPawnDamagedSignature, float, Ratio);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPawnDeathSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPawnDeathSignature, AController*, Causer);
 
 UINTERFACE()
 class UPawnOnDamageEvent : public UInterface

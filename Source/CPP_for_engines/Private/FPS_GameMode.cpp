@@ -2,6 +2,7 @@
 
 #include "Controllerable.h"
 #include "GameRule.h"
+#include "PlayerDeathEvent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -25,6 +26,12 @@ AActor* AFPS_GameMode::FindPlayerStart_Implementation(AController* Player, const
 
 void AFPS_GameMode::PostLogin(APlayerController* NewPlayer)
 {
+	if (UKismetSystemLibrary::DoesImplementInterface(NewPlayer, UPlayerDeathEvent::StaticClass()))
+	{
+		IPlayerDeathEvent* INewPlayer = Cast<IPlayerDeathEvent>(NewPlayer);
+		INewPlayer->GetPlayerDeathDelegate().AddUniqueDynamic(this, &AFPS_GameMode::Handle_playerDeath);
+	}
+	
 	_Controllers.AddUnique(NewPlayer);
 	Super::PostLogin(NewPlayer);
 }
@@ -51,7 +58,7 @@ void AFPS_GameMode::HandleMatchIsWaitingToStart()
 			Rule->OnComplete.AddUniqueDynamic(this, &AFPS_GameMode::Handle_GameRuleComplete);
 			Rule->OnPointsScored.AddUniqueDynamic(this, &AFPS_GameMode::Handle_GameRulePointsScored);
 
-			_GamRulesLeft++;
+			_GameRulesLeft++;
 		}
 	}
 	
@@ -120,6 +127,7 @@ bool AFPS_GameMode::ReadyToEndMatch_Implementation()
 
 void AFPS_GameMode::Handle_GameRuleComplete()
 {
+	_GameRulesLeft--;
 }
 
 void AFPS_GameMode::Handle_GameRulePointsScored(AController* Scorer, int Points)
@@ -128,6 +136,11 @@ void AFPS_GameMode::Handle_GameRulePointsScored(AController* Scorer, int Points)
 	{
 		IControllerable::Execute_AddPoints(Scorer, Points);
 	}
+}
+
+void AFPS_GameMode::Handle_playerDeath(AController* Causer)
+{
+	RestartGame();
 }
 
 void AFPS_GameMode::DecreaseCountdown()

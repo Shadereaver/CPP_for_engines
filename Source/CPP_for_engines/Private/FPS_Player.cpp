@@ -202,7 +202,9 @@ UBehaviorTree* AFPS_Player::GetBehaviorTree_Implementation()
 
 void AFPS_Player::Handle_HealthDead(AController* Causer)
 {
-	//TODO:: implement
+	OnDeath.Broadcast(Causer);
+	_WeaponRef->Destroy();
+	Destroy();
 }
 
 void AFPS_Player::Handle_HealthDamaged(float Ratio)

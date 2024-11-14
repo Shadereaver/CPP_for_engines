@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Controllerable.h"
+#include "PlayerDeathEvent.h"
 #include "GameFramework/PlayerController.h"
 #include "FPS_PlayerController.generated.h"
 
@@ -10,9 +11,14 @@ struct FInputActionValue;
 class UInputAction;
 
 UCLASS(Abstract)
-class CPP_FOR_ENGINES_API AFPS_PlayerController : public APlayerController, public IControllerable
+class CPP_FOR_ENGINES_API AFPS_PlayerController : public APlayerController, public IControllerable, public IPlayerDeathEvent
 {
 	GENERATED_BODY()
+	
+public:
+	FPlayerDeathSignature OnPlayerDeath;
+	
+	virtual FPlayerDeathSignature& GetPlayerDeathDelegate() override;
 
 protected:
 	UPROPERTY(EditAnywhere, Category="Input")
@@ -60,10 +66,14 @@ protected:
 	void SpecialMovementPressed();
 
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
 
 private:
 	virtual void AddPoints_Implementation(int Points) override;
 
 	UFUNCTION()
 	void Handle_OnDamage(float Ratio);
+
+	UFUNCTION()
+	void Handle_OnDeath(AController* Causer);
 };

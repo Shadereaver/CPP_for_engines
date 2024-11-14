@@ -9,6 +9,11 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 
+FPlayerDeathSignature& AFPS_PlayerController::GetPlayerDeathDelegate()
+{
+	return OnPlayerDeath;
+}
+
 void AFPS_PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -212,11 +217,6 @@ void AFPS_PlayerController::SpecialMovementPressed()
 
 void AFPS_PlayerController::OnPossess(APawn* InPawn)
 {
-	if (UKismetSystemLibrary::DoesImplementInterface(GetPawn(), UPawnOnDamageEvent::StaticClass()))
-	{
-		Cast<IPawnOnDamageEvent>(GetPawn())->GetDamageDelegate().RemoveDynamic(this, &AFPS_PlayerController::Handle_OnDamage);
-	}
-	
 	Super::OnPossess(InPawn);
 
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
@@ -232,10 +232,24 @@ void AFPS_PlayerController::OnPossess(APawn* InPawn)
 		IPawnOnDamageEvent* IInPawn = Cast<IPawnOnDamageEvent>(InPawn);
 		IInPawn->GetDamageDelegate().AddUniqueDynamic(this, &AFPS_PlayerController::Handle_OnDamage);
 		IInPawn->RequestHealthUpdate();
+
+		IInPawn->GetDeathDelegate().AddUniqueDynamic(this, &AFPS_PlayerController::Handle_OnDeath);
 	}
 
 	UGameplayStatics::GetPlayerCameraManager(this, 0)->ViewPitchMax = 90;
 	UGameplayStatics::GetPlayerCameraManager(this, 0)->ViewPitchMin = -90;
+}
+
+void AFPS_PlayerController::OnUnPossess()
+{
+	if (UKismetSystemLibrary::DoesImplementInterface(GetPawn(), UPawnOnDamageEvent::StaticClass()))
+	{
+		IPawnOnDamageEvent* IPawn = Cast<IPawnOnDamageEvent>(GetPawn());
+		IPawn->GetDamageDelegate().RemoveDynamic(this, &AFPS_PlayerController::Handle_OnDamage);
+		IPawn->GetDeathDelegate().RemoveDynamic(this, &AFPS_PlayerController::Handle_OnDeath);
+	}
+	
+	Super::OnUnPossess();
 }
 
 void AFPS_PlayerController::AddPoints_Implementation(int Points)
@@ -246,6 +260,11 @@ void AFPS_PlayerController::AddPoints_Implementation(int Points)
 void AFPS_PlayerController::Handle_OnDamage(float Ratio)
 {
 	_HUDWidget->UpdateHealth(Ratio);
+}
+
+void AFPS_PlayerController::Handle_OnDeath(AController* Causer)
+{
+	OnPlayerDeath.Broadcast(Causer);
 }
 
 
