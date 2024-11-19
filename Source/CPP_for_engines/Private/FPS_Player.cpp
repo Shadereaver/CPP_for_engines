@@ -5,8 +5,6 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Navigation/NavLinkProxy.h"
-
 
 AFPS_Player::AFPS_Player()
 {
@@ -210,10 +208,9 @@ FNavLinkInterfaceResumePathSignature& AFPS_Player::GetResumeDelegate()
 
 void AFPS_Player::StartWallRun(const FVector& DestinationPoint)
 {
-	
+	AIWallRun(DestinationPoint);
 
-	OnResume.Broadcast(this);
-	OnResume.Clear();
+	GetWorldTimerManager().SetTimer(_TimerAIWallRunLimit, this, &AFPS_Player::ResumeNav, 5.f);
 }
 
 FGenericTeamId AFPS_Player::GetGenericTeamId() const
@@ -235,12 +232,9 @@ void AFPS_Player::Handle_HealthDamaged(float Ratio)
 
 void AFPS_Player::Landed(const FHitResult& Hit)
 {
-	GetWorld()->GetTimerManager().ClearTimer(_TimerWallRunUpdate);
+	GetWorldTimerManager().ClearTimer(_TimerWallRunUpdate);
 
-	GetCharacterMovement()->GravityScale = 1;
-		
-	_bIsWallRunning = false;
-	_bIsMovingSpecial = false;
+	WallrunReset();
 }
 
 void AFPS_Player::WallRun()
@@ -302,27 +296,59 @@ void AFPS_Player::WallRun()
 		FLinearColor::Green,
 		5);
 
-	if (_bIsSprinting && (WallLeftHitResult.bBlockingHit || WallRightHitResult.bBlockingHit
-		|| WallLeftBackHitResult.bBlockingHit || WallRightBackHitResult.bBlockingHit)
-		&& GetActorForwardVector().Dot(GetVelocity()) > GetCharacterMovement()->MaxWalkSpeed * 0.5)
+	bool bDoesTraceHit = WallLeftHitResult.bBlockingHit || WallRightHitResult.bBlockingHit ||
+		WallLeftBackHitResult.bBlockingHit || WallRightBackHitResult.bBlockingHit;
+
+	bool bIsMovingForwards = GetActorForwardVector().Dot(GetVelocity()) > GetCharacterMovement()->MaxWalkSpeed * 0.5;
+	
+	if (_bIsSprinting && bDoesTraceHit && bIsMovingForwards)
 	{
 		GetCharacterMovement()->GravityScale = 0.5f;
-
-		GetWorld()->GetTimerManager().SetTimer(_TimerWallRunUpdate, this, &AFPS_Player::WallRun, 0.01f, true);
-
 		_bIsWallRunning = true;
-
 		_bIsRightWallRun = (WallRightHitResult.bBlockingHit || WallRightBackHitResult.bBlockingHit) ? true : false;
 	}
 	else
 	{
-		
-		
-		GetCharacterMovement()->GravityScale = 1;
-		
-		_bIsWallRunning = false;
-		_bIsMovingSpecial = false;
+		WallrunReset();
 	}
+}
+
+void AFPS_Player::AIWallRun(FVector Dest)
+{
+	if (!GetActorLocation().Equals(Dest))
+	{
+		_bIsWallRunning = true;
+		_bIsMovingSpecial = true;
+		
+		GetCharacterMovement()->GravityScale = 0.f;
+		GetCharacterMovement()->AddImpulse((Dest - GetActorLocation()) * 10);
+
+		FTimerDelegate Timerdel;
+		Timerdel.BindUFunction(this, FName("AIWallRun"), Dest);
+		GetWorldTimerManager().SetTimer(_TimerAIWallRunUpdate, Timerdel, 0.01f, true);
+	}
+	else
+	{
+		ResumeNav();
+	}
+}
+
+void AFPS_Player::WallrunReset()
+{
+	GetCharacterMovement()->GravityScale = 1;
+		
+	_bIsWallRunning = false;
+	_bIsMovingSpecial = false;
+}
+
+void AFPS_Player::ResumeNav()
+{
+	OnResume.Broadcast(this);
+	OnResume.Clear();
+
+	GetWorldTimerManager().ClearTimer(_TimerAIWallRunUpdate);
+
+	WallrunReset();
 }
 
 FPawnDamagedSignature& AFPS_Player::GetDamageDelegate()

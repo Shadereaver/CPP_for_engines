@@ -53,12 +53,11 @@ void AAIC_FPS::OnPossess(APawn* InPawn)
 	{
 		RunBehaviorTree(IInputable::Execute_GetBehaviorTree(InPawn));
 	}
-
-	
 }
 
 void AAIC_FPS::Handle_TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	if (Actor == nullptr) {return;}
 	UBlackboardComponent* bbcomp = GetBlackboardComponent();
 	switch (Stimulus.Type)
 	{

@@ -93,6 +93,8 @@ protected:
 
 private:
 	FTimerHandle _TimerWallRunUpdate;
+	FTimerHandle _TimerAIWallRunUpdate;
+	FTimerHandle _TimerAIWallRunLimit;
 
 	bool _bIsRightWallRun;
 	
@@ -106,4 +108,10 @@ private:
 
 	UFUNCTION()
 	void WallRun();
+	UFUNCTION()
+	void AIWallRun(FVector Dest);
+
+	void WallrunReset();
+
+	void ResumeNav();
 };

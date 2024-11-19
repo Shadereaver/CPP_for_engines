@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BehaviorTreeTypes.h"
 #include "Perception/AIPerceptionTypes.h"
 #include "Runtime/AIModule/Classes/AIController.h"
 #include "AIC_FPS.generated.h"
