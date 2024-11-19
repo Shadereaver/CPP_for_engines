@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Navigation/NavLinkProxy.h"
 
 
 AFPS_Player::AFPS_Player()
@@ -21,6 +22,8 @@ AFPS_Player::AFPS_Player()
 	_WalkSpeedRatio = 0.5;
 
 	_bIsMovingSpecial = false;
+
+	_TeamId = FGenericTeamId(2);
 }
 
 void AFPS_Player::Input_Look_Implementation(FVector2D Value)
@@ -198,6 +201,24 @@ UInputMappingContext* AFPS_Player::GetMappingContext_Implementation()
 UBehaviorTree* AFPS_Player::GetBehaviorTree_Implementation()
 {
 	return _BehaviorTree;
+}
+
+FNavLinkInterfaceResumePathSignature& AFPS_Player::GetResumeDelegate()
+{
+	return OnResume;
+}
+
+void AFPS_Player::StartWallRun(const FVector& DestinationPoint)
+{
+	
+
+	OnResume.Broadcast(this);
+	OnResume.Clear();
+}
+
+FGenericTeamId AFPS_Player::GetGenericTeamId() const
+{
+	return _TeamId;
 }
 
 void AFPS_Player::Handle_HealthDead(AController* Causer)

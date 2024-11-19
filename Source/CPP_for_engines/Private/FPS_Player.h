@@ -1,7 +1,9 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
 #include "Inputable.h"
+#include "NavLinkInterface.h"
 #include "PawnOnDamageEvent.h"
 #include "GameFramework/Character.h"
 #include "FPS_Player.generated.h"
@@ -15,7 +17,7 @@ class UCameraComponent;
 
 
 UCLASS(Abstract)
-class CPP_FOR_ENGINES_API AFPS_Player : public ACharacter, public IInputable, public IPawnOnDamageEvent
+class CPP_FOR_ENGINES_API AFPS_Player : public ACharacter, public IInputable, public IPawnOnDamageEvent, public INavLinkInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -24,6 +26,7 @@ public:
 
 	FPawnDamagedSignature OnDamaged;
 	FPawnDeathSignature OnDeath;
+	FNavLinkInterfaceResumePathSignature OnResume;
 
 	virtual FPawnDamagedSignature& GetDamageDelegate() override;
 	virtual FPawnDeathSignature& GetDeathDelegate() override;
@@ -49,7 +52,11 @@ public:
 
 	virtual UInputMappingContext* GetMappingContext_Implementation() override;
 	virtual UBehaviorTree* GetBehaviorTree_Implementation() override;
+	
+	virtual FNavLinkInterfaceResumePathSignature& GetResumeDelegate() override;
+	virtual void StartWallRun(const FVector& DestinationPoint) override;
 
+	virtual FGenericTeamId GetGenericTeamId() const override;
 
 protected:
 	
@@ -80,6 +87,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UBehaviorTree> _BehaviorTree;
+
+	UPROPERTY(EditAnywhere)
+	FGenericTeamId _TeamId;
 
 private:
 	FTimerHandle _TimerWallRunUpdate;
