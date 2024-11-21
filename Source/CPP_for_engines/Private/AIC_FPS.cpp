@@ -57,12 +57,12 @@ void AAIC_FPS::OnPossess(APawn* InPawn)
 
 void AAIC_FPS::Handle_TargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	if (Actor == nullptr) {return;}
 	UBlackboardComponent* bbcomp = GetBlackboardComponent();
 	switch (Stimulus.Type)
 	{
 	case 0:
-		bbcomp->SetValueAsObject(_Key_TargetActor, Actor);
+		bbcomp->SetValueAsVector(FName("TargetPosition"), Stimulus.StimulusLocation);
+		bbcomp->SetValueAsObject(FName("TargetActor"), (Stimulus.WasSuccessfullySensed()) ? Actor : nullptr);
 		return;
 	default:
 		return;
