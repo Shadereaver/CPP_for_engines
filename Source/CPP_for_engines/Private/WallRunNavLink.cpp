@@ -7,8 +7,6 @@
 AWallRunNavLink::AWallRunNavLink()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
-	OnSmartLinkReached.AddUniqueDynamic(this, &AWallRunNavLink::Handle_OnLinkReached);
 }
 
 void AWallRunNavLink::Handle_OnLinkReached(AActor* MovingActor, const FVector& DestinationPoint)
@@ -21,5 +19,12 @@ void AWallRunNavLink::Handle_OnLinkReached(AActor* MovingActor, const FVector& D
 		
 		IMovingActor->StartWallRun(DestinationPoint);
 	}
+}
+
+void AWallRunNavLink::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OnSmartLinkReached.AddUniqueDynamic(this, &AWallRunNavLink::Handle_OnLinkReached);
 }
 

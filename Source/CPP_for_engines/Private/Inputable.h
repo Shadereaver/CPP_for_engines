@@ -30,14 +30,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Input_AttackReleased();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void Input_Interact();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void Input_AimPressed();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void Input_AimReleased();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void Input_Reload();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Input_SprintPressed();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Input_SprintReleased();

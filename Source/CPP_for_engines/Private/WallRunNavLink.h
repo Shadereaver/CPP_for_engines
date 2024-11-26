@@ -15,4 +15,6 @@ public:
 protected:
 	UFUNCTION()
 	void Handle_OnLinkReached(AActor* MovingActor, const FVector& DestinationPoint);
+
+	virtual void BeginPlay() override;
 };

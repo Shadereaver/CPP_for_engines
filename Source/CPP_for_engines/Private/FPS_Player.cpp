@@ -2,7 +2,9 @@
 
 #include "HealthComponent.h"
 #include "WeaponBase.h"
+#include "Widget_EnemyHealthBar.h"
 #include "Camera/CameraComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -16,10 +18,15 @@ AFPS_Player::AFPS_Player()
 	_WeaponAttachPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Weapon Attach"));
 	_WeaponAttachPoint->SetupAttachment(_Camera);
 
+	_HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("_HealthBar"));
+	_HealthBar->SetupAttachment(RootComponent);
+
 	_bIsSprinting = false;
 	_WalkSpeedRatio = 0.5;
 
 	_bIsMovingSpecial = false;
+	_bIsRightWallRun = false;
+	_bHasWallJumped = false;
 
 	_TeamId = FGenericTeamId(2);
 }
@@ -56,7 +63,7 @@ void AFPS_Player::Input_JumpPressed_Implementation()
 {
 	ACharacter::Jump();
 
-	if (_bIsWallRunning)
+	if (_bIsWallRunning && !_bHasWallJumped)
 	{
 		if (_bIsRightWallRun)
 		{
@@ -66,32 +73,13 @@ void AFPS_Player::Input_JumpPressed_Implementation()
 		{
 			GetCharacterMovement()->AddImpulse((_Camera->GetForwardVector() + _Camera->GetRightVector()) * 750, true);
 		}
+		_bHasWallJumped = true;
 	}
 }
 
 void AFPS_Player::Input_JumpReleased_Implementation()
 {
 	ACharacter::StopJumping();
-}
-
-void AFPS_Player::Input_AimPressed_Implementation()
-{
-	//TODO:: make aim
-}
-
-void AFPS_Player::Input_AimReleased_Implementation()
-{
-	//TODO:: stop aim
-}
-
-void AFPS_Player::Input_Interact_Implementation()
-{
-	//TODO:: make interact
-}
-
-void AFPS_Player::Input_Reload_Implementation()
-{
-	//TODO:: make reload
 }
 
 void AFPS_Player::Input_CrouchPressed_Implementation()
@@ -121,6 +109,12 @@ void AFPS_Player::BeginPlay()
 	_Health->OnDead.AddUniqueDynamic(this, &AFPS_Player::Handle_HealthDead);
 	_Health->OnDamaged.AddUniqueDynamic(this, &AFPS_Player::Handle_HealthDamaged);
 
+	_HealthBarRef = Cast<UWidget_EnemyHealthBar>(_HealthBar->GetWidget());
+	if (_HealthBarRef)
+	{
+		_HealthBarRef->UpdateHealth(_Health->Get_HealthRatio());
+	}
+	
 	if (_DefaultWeapon)
 	{
 		FActorSpawnParameters SpawnParams;
@@ -218,15 +212,27 @@ FGenericTeamId AFPS_Player::GetGenericTeamId() const
 	return _TeamId;
 }
 
+void AFPS_Player::ChangeWeapon_Implementation(TSubclassOf<AWeaponBase> Weapon)
+{
+	_WeaponRef->Destroy();
+	_DefaultWeapon = Weapon;
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+	_WeaponRef = GetWorld()->SpawnActor<AWeaponBase>(_DefaultWeapon, _WeaponAttachPoint->GetComponentTransform(), SpawnParams);
+	_WeaponRef->AttachToComponent(_WeaponAttachPoint, FAttachmentTransformRules::SnapToTargetIncludingScale);
+}
+
 void AFPS_Player::Handle_HealthDead(AController* Causer)
 {
 	OnDeath.Broadcast(Causer);
 	_WeaponRef->Destroy();
-	Destroy();
+	GetWorldTimerManager().SetTimer(_DeathTimer, this, &AFPS_Player::Death, 0.5);
 }
 
 void AFPS_Player::Handle_HealthDamaged(float Ratio)
 {
+	_HealthBarRef->UpdateHealth(Ratio);
 	OnDamaged.Broadcast(Ratio);
 }
 
@@ -235,6 +241,8 @@ void AFPS_Player::Landed(const FHitResult& Hit)
 	GetWorldTimerManager().ClearTimer(_TimerWallRunUpdate);
 
 	WallrunReset();
+
+	_bHasWallJumped = false;
 }
 
 void AFPS_Player::WallRun()
@@ -349,6 +357,11 @@ void AFPS_Player::ResumeNav()
 	GetWorldTimerManager().ClearTimer(_TimerAIWallRunUpdate);
 
 	WallrunReset();
+}
+
+void AFPS_Player::Death()
+{
+	Destroy();
 }
 
 FPawnDamagedSignature& AFPS_Player::GetDamageDelegate()

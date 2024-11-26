@@ -34,9 +34,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float _FireDelay;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	bool _bOnCooldown;
 
+	FTimerHandle _Cooldown;
 	FTimerHandle _FireDelayTimer;
 
 	UFUNCTION()
 	virtual void Fire();
+
+	UFUNCTION()
+	void OffCooldown();
 };

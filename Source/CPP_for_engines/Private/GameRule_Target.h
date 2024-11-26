@@ -24,6 +24,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TObjectPtr<UTargetComponent>> _Targets;
 
+	UPROPERTY(VisibleAnywhere)
 	int _AmountRemaining;
 
 private:

@@ -6,7 +6,6 @@ UHealthComponent::UHealthComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	_MaxHealth = 100.f;
-	_CurrentHealth = _MaxHealth;
 }
 
 float UHealthComponent::Get_HealthRatio()
@@ -19,6 +18,7 @@ void UHealthComponent::BeginPlay()
 	Super::BeginPlay();
 
 	GetOwner()->OnTakeAnyDamage.AddUniqueDynamic(this, &UHealthComponent::DamageTaken);
+	_CurrentHealth = _MaxHealth;
 }
 
 void UHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType,

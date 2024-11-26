@@ -30,12 +30,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> _AttackAction;
 	UPROPERTY(EditAnywhere, Category="Input")
-	TObjectPtr<UInputAction> _AimAction;
-	UPROPERTY(EditAnywhere, Category="Input")
-	TObjectPtr<UInputAction> _InteractAction;
-	UPROPERTY(EditAnywhere, Category="Input")
-	TObjectPtr<UInputAction> _ReloadAction;
-	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> _SprintAction;
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> _CrouchAction;
@@ -55,10 +49,6 @@ protected:
 	void JumpReleased();
 	void AttackPressed();
 	void AttackReleased();
-	void AimPressed();
-	void AimReleased();
-	void InteractPressed();
-	void ReloadPressed();
 	void SprintPressed();
 	void SprintReleased();
 	void CrouchPressed();

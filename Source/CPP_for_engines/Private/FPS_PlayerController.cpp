@@ -116,49 +116,6 @@ void AFPS_PlayerController::AttackReleased()
 	}
 }
 
-void AFPS_PlayerController::AimPressed()
-{
-	if (APawn* CurrentPawn = GetPawn())
-	{
-		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
-		{
-			IInputable::Execute_Input_AimPressed(CurrentPawn);
-		}
-	}
-}
-
-void AFPS_PlayerController::AimReleased()
-{
-	if (APawn* CurrentPawn = GetPawn())
-	{
-		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
-		{
-			IInputable::Execute_Input_AimReleased(CurrentPawn);
-		}
-	}
-}
-
-void AFPS_PlayerController::InteractPressed()
-{
-	if (APawn* CurrentPawn = GetPawn())
-	{
-		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
-		{
-			IInputable::Execute_Input_Interact(CurrentPawn);
-		}
-	}
-}
-
-void AFPS_PlayerController::ReloadPressed()
-{
-	if (APawn* CurrentPawn = GetPawn())
-	{
-		if (UKismetSystemLibrary::DoesImplementInterface(CurrentPawn, UInputable::StaticClass()))
-		{
-			IInputable::Execute_Input_Reload(CurrentPawn);
-		}
-	}
-}
 
 void AFPS_PlayerController::SprintPressed()
 {

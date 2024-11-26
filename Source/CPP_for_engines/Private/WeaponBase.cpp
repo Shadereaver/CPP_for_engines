@@ -6,7 +6,7 @@
 AWeaponBase::AWeaponBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	_FireDelay = 0.f;
+	_FireDelay = 1.f;
 
 	_Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = _Root;
@@ -16,15 +16,19 @@ AWeaponBase::AWeaponBase()
 
 	_Muzzle = CreateDefaultSubobject<UArrowComponent>(TEXT("Muzzle"));
 	_Muzzle->SetupAttachment(_Mesh);
+
+	_bOnCooldown = false;
 }
 
 void AWeaponBase::StartFire()
 {
+	if (_bOnCooldown) {return;}
+	_bOnCooldown = true;
+	
 	Fire();
-	if (_FireDelay != 0.f)
-	{
-		GetWorld()->GetTimerManager().SetTimer(_FireDelayTimer, this, &AWeaponBase::Fire, _FireDelay);
-	}
+	
+	GetWorldTimerManager().SetTimer(_FireDelayTimer, this, &AWeaponBase::Fire, _FireDelay, true);
+	GetWorldTimerManager().SetTimer(_Cooldown, this, &AWeaponBase::OffCooldown, _FireDelay);
 }
 
 void AWeaponBase::StopFire()
@@ -35,5 +39,10 @@ void AWeaponBase::StopFire()
 void AWeaponBase::Fire()
 {
 	OnFire.Broadcast();
+}
+
+void AWeaponBase::OffCooldown()
+{
+	_bOnCooldown = false;
 }
 

@@ -5,9 +5,12 @@
 #include "Inputable.h"
 #include "NavLinkInterface.h"
 #include "PawnOnDamageEvent.h"
+#include "WeaponPickupInterface.h"
 #include "GameFramework/Character.h"
 #include "FPS_Player.generated.h"
 
+class UWidget_EnemyHealthBar;
+class UWidgetComponent;
 class UBehaviorTree;
 class AWeaponBase;
 class UHealthComponent;
@@ -17,7 +20,8 @@ class UCameraComponent;
 
 
 UCLASS(Abstract)
-class CPP_FOR_ENGINES_API AFPS_Player : public ACharacter, public IInputable, public IPawnOnDamageEvent, public INavLinkInterface, public IGenericTeamAgentInterface
+class CPP_FOR_ENGINES_API AFPS_Player : public ACharacter, public IInputable, public IPawnOnDamageEvent,
+public INavLinkInterface, public IGenericTeamAgentInterface, public IWeaponPickupInterface
 {
 	GENERATED_BODY()
 
@@ -38,10 +42,6 @@ public:
 	virtual void Input_AttackReleased_Implementation() override;
 	virtual void Input_JumpPressed_Implementation() override;
 	virtual void Input_JumpReleased_Implementation() override;
-	virtual void Input_AimPressed_Implementation() override;
-	virtual void Input_AimReleased_Implementation() override;
-	virtual void Input_Interact_Implementation() override;
-	virtual void Input_Reload_Implementation() override;
 	virtual void Input_CrouchPressed_Implementation() override;
 	virtual void Input_CrouchReleased_Implementation() override;
 	virtual void Input_SpacialMovementPressed_Implementation() override;
@@ -57,6 +57,8 @@ public:
 	virtual void StartWallRun(const FVector& DestinationPoint) override;
 
 	virtual FGenericTeamId GetGenericTeamId() const override;
+
+	virtual void ChangeWeapon_Implementation(TSubclassOf<AWeaponBase> Weapon) override;
 
 protected:
 	
@@ -91,21 +93,31 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FGenericTeamId _TeamId;
 
-private:
 	FTimerHandle _TimerWallRunUpdate;
 	FTimerHandle _TimerAIWallRunUpdate;
 	FTimerHandle _TimerAIWallRunLimit;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool _bIsRightWallRun;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool _bHasWallJumped;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UWidgetComponent> _HealthBar;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UWidget_EnemyHealthBar> _HealthBarRef;
+
+	FTimerHandle _DeathTimer;
 	
+	UFUNCTION()
+	virtual void Landed(const FHitResult& Hit) override;
+	
+private:
 	UFUNCTION()
 	void Handle_HealthDead(AController* Causer);
 	UFUNCTION()
 	void Handle_HealthDamaged(float Ratio);
-
-	UFUNCTION()
-	virtual void Landed(const FHitResult& Hit) override;
-
+	
 	UFUNCTION()
 	void WallRun();
 	UFUNCTION()
@@ -114,4 +126,7 @@ private:
 	void WallrunReset();
 
 	void ResumeNav();
+
+	UFUNCTION()
+	void Death();
 };

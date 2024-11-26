@@ -5,6 +5,7 @@
 #include "PlayerDeathEvent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "JsonObjectConverter.h"
 
 AActor* AFPS_GameMode::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName)
 {
@@ -42,6 +43,16 @@ void AFPS_GameMode::Logout(AController* Exiting)
 	Super::Logout(Exiting);
 }
 
+void AFPS_GameMode::StartTimer_Implementation()
+{
+	GetWorldTimerManager().SetTimer(_GameTimer, this, &AFPS_GameMode::IncreaseTime, 0.1f, true);
+}
+
+FGameModeRunDataUpdateSignature& AFPS_GameMode::GetRunDataDelegate()
+{
+	return OnRunDataUpdate;
+}
+
 void AFPS_GameMode::HandleMatchIsWaitingToStart()
 {
 	TArray<UActorComponent*> OutComponents;
@@ -62,13 +73,15 @@ void AFPS_GameMode::HandleMatchIsWaitingToStart()
 		}
 	}
 	
-	GetWorld()->GetTimerManager().SetTimer(_TimerDecreaseCountdown, this, &AFPS_GameMode::DecreaseCountdown, 1.f, false);
+	GetWorldTimerManager().SetTimer(_TimerDecreaseCountdown, this, &AFPS_GameMode::DecreaseCountdown, 1.f, false);
 	Super::HandleMatchIsWaitingToStart();
 }
 
 void AFPS_GameMode::HandleMatchHasStarted()
 {
+	OnRunDataUpdate.Broadcast(_PastRunData);
 	DefaultPawnClass = _MatchPawn;
+	_RunData.Time = 0;
 	for(AController* Controller : _Controllers)
 	{
 		RestartPlayer(Controller);
@@ -125,20 +138,98 @@ bool AFPS_GameMode::ReadyToEndMatch_Implementation()
 	return false;
 }
 
+void AFPS_GameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	_PastRunData = FPastRunData();
+	FString File = FPaths::ProjectDir();
+	File.Append(TEXT("PrevRuns.txt"));
+
+	IPlatformFile& FileManager = FPlatformFileManager::Get().GetPlatformFile();
+
+	FString StringToSave;
+
+	if (FileManager.FileExists(*File))
+	{
+		if (FFileHelper::LoadFileToString(StringToSave, *File))
+		{
+			FJsonObjectConverter::JsonObjectStringToUStruct(StringToSave, &_PastRunData, 0, 0);
+			UE_LOG(LogTemp, Warning, TEXT("File Loaded"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("File not loaded"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("File : %s : not found"), *File);
+	}
+}
+
 void AFPS_GameMode::Handle_GameRuleComplete()
 {
 	_GameRulesLeft--;
+	if (_GameRulesLeft == 0)
+	{
+		GetWorldTimerManager().ClearTimer(_GameTimer);
+		_PastRunData.AddRun(_RunData);
+		Save();
+		GetWorldTimerManager().SetTimer(_RestartTimer, this, &AFPS_GameMode::Restart, 3);
+	}
 }
 
 void AFPS_GameMode::Handle_GameRulePointsScored(AController* Scorer, int Points)
 {
 	if (UKismetSystemLibrary::DoesImplementInterface(Scorer, UControllerable::StaticClass()))
 	{
-		IControllerable::Execute_AddPoints(Scorer, Points);
+		_RunData.Score += Points;
+		IControllerable::Execute_AddPoints(Scorer, _RunData.Score);
 	}
 }
 
 void AFPS_GameMode::Handle_playerDeath(AController* Causer)
+{
+	GetWorldTimerManager().ClearTimer(_GameTimer);
+
+	_PastRunData.AddRun(_RunData);
+	
+	Save();
+
+	GetWorldTimerManager().SetTimer(_RestartTimer, this, &AFPS_GameMode::Restart, 3);
+}
+
+void AFPS_GameMode::Save()
+{
+	FString File = FPaths::ProjectDir();
+	File.Append(TEXT("PrevRuns.txt"));
+
+	IPlatformFile& FileManager = FPlatformFileManager::Get().GetPlatformFile();
+
+	FString StringToSave;
+
+	TSharedPtr<FJsonObject> json = FJsonObjectConverter::UStructToJsonObject(_PastRunData);
+	FJsonObjectConverter::UStructToJsonObjectString(_PastRunData, StringToSave);
+
+	if (FileManager.FileExists(*File))
+	{
+		if (FFileHelper::SaveStringToFile(StringToSave, *File))
+		{
+			OnRunDataUpdate.Broadcast(_PastRunData);
+			UE_LOG(LogTemp, Warning, TEXT("File saved"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("File not saved"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("File : %s : not found"), *File);
+	}
+}
+
+void AFPS_GameMode::Restart()
 {
 	RestartGame();
 }
@@ -156,3 +247,9 @@ void AFPS_GameMode::DecreaseCountdown()
 		GetWorld()->GetTimerManager().SetTimer(_TimerDecreaseCountdown, this, &AFPS_GameMode::DecreaseCountdown, 1.f, false);
 	}
 }
+
+void AFPS_GameMode::IncreaseTime()
+{
+	_RunData.Time += 0.1;
+}
+
