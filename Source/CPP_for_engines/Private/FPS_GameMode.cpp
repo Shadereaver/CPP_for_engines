@@ -172,8 +172,7 @@ void AFPS_GameMode::Handle_GameRuleComplete()
 	_GameRulesLeft--;
 	if (_GameRulesLeft == 0)
 	{
-		GetWorldTimerManager().ClearTimer(_GameTimer);
-		_PastRunData.AddRun(_RunData);
+		
 		Save();
 		GetWorldTimerManager().SetTimer(_RestartTimer, this, &AFPS_GameMode::Restart, 3);
 	}
@@ -190,17 +189,15 @@ void AFPS_GameMode::Handle_GameRulePointsScored(AController* Scorer, int Points)
 
 void AFPS_GameMode::Handle_playerDeath(AController* Causer)
 {
-	GetWorldTimerManager().ClearTimer(_GameTimer);
-
-	_PastRunData.AddRun(_RunData);
-	
 	Save();
-
 	GetWorldTimerManager().SetTimer(_RestartTimer, this, &AFPS_GameMode::Restart, 3);
 }
 
 void AFPS_GameMode::Save()
 {
+	GetWorldTimerManager().ClearTimer(_GameTimer);
+	_PastRunData.AddRun(_RunData);
+	
 	FString File = FPaths::ProjectDir();
 	File.Append(TEXT("PrevRuns.txt"));
 
@@ -208,7 +205,6 @@ void AFPS_GameMode::Save()
 
 	FString StringToSave;
 
-	TSharedPtr<FJsonObject> json = FJsonObjectConverter::UStructToJsonObject(_PastRunData);
 	FJsonObjectConverter::UStructToJsonObjectString(_PastRunData, StringToSave);
 
 	if (FileManager.FileExists(*File))

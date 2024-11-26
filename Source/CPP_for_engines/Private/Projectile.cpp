@@ -25,7 +25,7 @@ AProjectile::AProjectile()
 void AProjectile::Handle_Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
-	if(OtherActor == nullptr || OtherActor == this || OtherComp == nullptr) {return;}
+	if(OtherActor == nullptr || OtherActor == this || OtherComp == nullptr || GetInstigator() == OtherActor) {return;}
 
 	UGameplayStatics::ApplyDamage(OtherActor, _Damage, GetInstigatorController(), this,
 		UDamageType::StaticClass());
