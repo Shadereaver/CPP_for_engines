@@ -26,7 +26,6 @@ void AScoreBoard::BeginPlay()
 	{
 		IRunDataInterface* IGameMode = Cast<IRunDataInterface>(GameMode);
 		IGameMode->GetRunDataDelegate().AddUniqueDynamic(this, &AScoreBoard::UpdateScoreboard);
-		UE_LOG(LogTemp, Display, TEXT("HI"));
 	}
 
 	_ScoreboardRef = Cast<UWidget_Scoreboard>(_Scoreboard->GetWidget());
